@@ -3,7 +3,7 @@ let emptySlotNumber;
 let emptySlotObject;
 let gameBoard, movesCounter = 0;
 let gameBoardSize = 16; //Change it later, so user will be able to change game board size   
-let movesLimit = 30;
+let movesLimit = 10;
 
 //Function called when page is fully loaded to initialize game board and start the game
 const initializeGame = () => {
@@ -118,7 +118,6 @@ const checkAllSlots = () => {
             }
         }
     }
-
     //If reached this point it means that all slots are in order and user won
     printResult("won");
 };
@@ -145,11 +144,17 @@ const checkAllSlots = () => {
             restartGame();
         }
         else { //If user doesn't want to continue game, remove all event listeners
-            let notEmptySlot = document.getElementsByClassName("notEmptySlot");
-
-         };
-
+            disableSlots();
+        }
 }
+
+//Disable all slots 
+const disableSlots = () => {
+    let notEmptySlots = document.querySelectorAll("td");
+    notEmptySlots.forEach(slot => {
+        slot.removeEventListener("click", slotClicked);
+    });
+};
 
 //Function to start a new game
 let restartGame = () => {
