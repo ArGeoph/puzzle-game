@@ -1,6 +1,6 @@
 //Method initializing game board
 let emptySlotNumber;
-let emptySlotObject;
+let emptySlotObject, resetButton;
 let gameBoard, movesCounter = 0;
 let gameBoardSize = 16; //Change it later, so user will be able to change game board size   
 let movesLimit = 10;
@@ -10,8 +10,10 @@ const initializeGame = () => {
     
     emptySlotNumber = getRandomNumber(0, gameBoardSize); //Getting pseudo-random number for emptySlot
     gameBoard = document.getElementById("gameBoard");
+    resetButton = document.getElementById("resetButton");
     gameBoard.innerHTML = "";
 
+    resetButton.addEventListener("click", restartGame, false);
     //Creating gameboard
     for (let i = 0; i < gameBoardSize; i++) {
 
