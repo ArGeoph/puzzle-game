@@ -1,19 +1,36 @@
 //Method initializing game board
 let emptySlotNumber;
-let emptySlotObject, resetButton;
+let emptySlotObject, resetButton, inputFile, inputImage, canvas, context;
 let gameBoard, movesCounter = 0;
 let gameBoardSize = 16; //Change it later, so user will be able to change game board size   
-let movesLimit = 10;
+let movesLimit = 5;
+//For canvas
+let imgW, //px
+imgH, //px
+tileDim = 83, //tile dimensions px
+tileCountX, //how many tiles we can fit
+tileCountY;
+let w = innerWidth,
+h = innerHeight, tiles, images = [];
+
 
 //Function called when page is fully loaded to initialize game board and start the game
 const initializeGame = () => {
-    
+    inputFile = document.getElementById("inputFile");
     emptySlotNumber = getRandomNumber(0, gameBoardSize); //Getting pseudo-random number for emptySlot
     gameBoard = document.getElementById("gameBoard");
     resetButton = document.getElementById("resetButton");
+    canvas = document.getElementById("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    context = canvas.getContext("2d");
+    inputImage = new Image(350,350);
+
     gameBoard.innerHTML = "";
 
     resetButton.addEventListener("click", restartGame, false);
+    inputFile.addEventListener("change", readFile); //Add listener to form to load file
+
     //Creating gameboard
     for (let i = 0; i < gameBoardSize; i++) {
 
@@ -22,11 +39,15 @@ const initializeGame = () => {
         }
 
         gameBoard.children[parseInt(i / 4)].appendChild(document.createElement("td")); //Create and append a game slot to every row
-        gameBoard.children[parseInt(i / 4)].children[i - (parseInt(i/4))*4].setAttribute('class', "notEmptySlot");
+        
 
         if (i === emptySlotNumber) { //Add empty slot
+            console.log(`Random number is ${emptySlotNumber}, slot ${i} is empty`);
             gameBoard.children[parseInt(i / 4)].children[i - (parseInt(i/4))*4].setAttribute('id', "emptySlot");
+            continue;
         }
+
+        gameBoard.children[parseInt(i / 4)].children[i - (parseInt(i/4))*4].setAttribute('class', "notEmptySlot");
     }    
         //Add event listeners to all slots        
         let notEmptySlots = document.querySelectorAll(".notEmptySlot");
@@ -34,26 +55,117 @@ const initializeGame = () => {
             slot.addEventListener("click", slotClicked);
         });
 
-        //Assign random numbers from 1 to (gameboardSize - 1) to emty slots
-        shuffleSlots();
+        //Assign random numbers from 1 to (gameboardSize - 1) to empty slots
+        
 };
+
+//Callback function called when new image file is loaded
+const readFile = () => {
+    let reader = new FileReader();
+    reader.readAsDataURL(inputFile.files[0]);
+    reader.onload = () => {
+        inputImage.src = reader.result;
+        
+        
+        inputImage.onload = () => {
+            
+            inputImage.naturalWidth = 350;
+            inputImage.naturalHeight = 350;
+
+            initializeCanvas();
+            tiles = getTiles();
+            drawTiles(tiles);   
+            
+            gameBoard.style.visibility = "visible";
+            resetButton.style.visibility = "visible";  
+        
+            restartGame();
+        }
+    }
+
+};
+//Function called to initialize canvas
+const initializeCanvas = () => {
+
+    imgW = inputImage.width;
+	imgH = inputImage.height;
+	//check how many full tiles we can fit
+	//right and bottom sides of the image will get cropped
+	tileCountX = ~~(imgW / tileDim);
+	tileCountY = ~~(imgH / tileDim);
+
+	context.drawImage(inputImage, 0, 0);
+	inputImage = context.getImageData(0, 0, imgW, imgH).data;
+	context.clearRect(0, 0, w, h);
+};
+
+function indexX(x) {
+	var i = x * 4;
+	if (i > inputImage.length) console.warn("X out of bounds");
+	return i;
+}
+function indexY(y) {
+	var i = imgW * 4 * y;
+	if (i > inputImage.length) console.warn("Y out of bounds");
+	return i;
+}
+function getIndex(x, y) {
+	var i = indexX(x) + indexY(y);
+	if (i > inputImage.length) console.warn("XY out of bounds");
+	return i;
+}
+
+//get a tile of size tileDim*tileDim from position xy
+function getTile(x, y) {
+	var tile = [];
+	//loop over rows
+	for (var i = 0; i < tileDim; i++) {
+		//slice original image from x to x + tileDim, concat
+		tile.push(...inputImage.slice(getIndex(x, y + i), getIndex(x + tileDim, y + i)));
+	}
+	//convert back to typed array and to imgdata object
+	tile = new ImageData(new Uint8ClampedArray(tile), tileDim, tileDim);
+	//save original position
+	tile.x = x;
+	tile.y = y;
+	return tile;
+}
+
+//generate all tiles
+function getTiles() {
+	var tiles = [];
+	for (var yi = 0; yi < tileCountY; yi++) {
+		for (var xi = 0; xi < tileCountX; xi++) {
+			tiles.push(getTile(xi * tileDim, yi * tileDim));
+		}
+	}
+	return tiles;
+}
 
 
 //Callback function called when any not-empty slot is clicked 
 const slotClicked = (event) => {
     //Swapping clicked slot with the empty one
-    emptySlotObject = document.getElementById("emptySlot");        
-    emptySlotObject.setAttribute('id', "");
+    if (event.currentTarget.getAttribute("id") != "emptySlot") {
+        emptySlotObject = document.getElementById("emptySlot");        
 
-    emptySlotObject.innerHTML = event.currentTarget.innerHTML;
-    event.currentTarget.innerHTML = "";                
-    event.currentTarget.setAttribute("class", "");
-    event.currentTarget.setAttribute("id", "emptySlot");                
-    movesCounter++;
-    console.log(movesCounter);
-
-    //Check if user won or lost 
-    checkGameStatus();
+        emptySlotNumber = parseInt(event.currentTarget.innerHTML);
+    
+        emptySlotObject.innerHTML = event.currentTarget.innerHTML;
+        //Swap backgrounds as well
+        emptySlotObject.style.backgroundImage = `url("${images[parseInt(event.currentTarget.innerHTML)].src}")`;
+        event.currentTarget.style.backgroundImage = "url('')";    
+    
+        emptySlotObject.setAttribute('id', "");
+        emptySlotObject.setAttribute("class", "notEmptySlot"); 
+        event.currentTarget.innerHTML = "";                
+        event.currentTarget.setAttribute("class", "");
+        event.currentTarget.setAttribute("id", "emptySlot");                
+        movesCounter++;
+    
+        //Check if user won or lost 
+        checkGameStatus();
+    }
 };
 
 
@@ -61,7 +173,7 @@ const slotClicked = (event) => {
 const getRandomNumber = (minValue, maxValue) => {
     return minValue + Math.floor(maxValue * Math.random());
 }
-
+ 
 
 //Function shuffling slots 
 const shuffleSlots = () => {
@@ -84,11 +196,27 @@ const shuffleSlots = () => {
                     break;
                 }
             } 
-            slots[slotNumber].innerHTML = randomNumber;       
+            slots[slotNumber].innerHTML = randomNumber;      
+            
+            if (images != undefined) {
+                slots[slotNumber].style.backgroundImage = `url("${images[randomNumber].src}")`; 
+            }            
         }
     }
 };
 
+
+function drawTiles(tiles) {
+    tiles.forEach((tile,i) => { 
+                                
+        context.putImageData(tile, 0, 0);
+        let tmpImage = new Image();
+        /* tmpImage.src = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, ''); */
+        tmpImage.src = canvas.toDataURL("image/png");
+        images[i] = tmpImage;
+        context.clearRect(0, 0, canvas.width, canvas.height);                                      
+        });
+}
 
 //Function used to check if user won the game
 let checkGameStatus = () => {
@@ -122,13 +250,10 @@ const checkAllSlots = () => {
     }
     //If reached this point it means that all slots are in order and user won
     printResult("won");
-};
-
-   
+};   
     //Function called if user won or lost
     const printResult = (result) => {
-        let message; //Message that will be used in alert window
-        
+        let message; //Message that will be used in alert window        
         
         switch(result) {
             case "lost":
@@ -138,7 +263,6 @@ const checkAllSlots = () => {
                 message = `Congrats, you won in ${movesCounter} moves! \n Press ok to start a new game`;
                 break;
         }
-
 
         let userChoise = window.confirm(message);
     
@@ -152,16 +276,29 @@ const checkAllSlots = () => {
 
 //Disable all slots 
 const disableSlots = () => {
-    let notEmptySlots = document.querySelectorAll("td");
-    notEmptySlots.forEach(slot => {
-        slot.removeEventListener("click", slotClicked);
+    let allSlots = document.querySelectorAll("td");
+
+    allSlots.forEach(slot => {
+        slot.removeEventListener("click", slotClicked);   
     });
 };
 
 //Function to start a new game
 let restartGame = () => {
+    tiles = [];
     movesCounter = 0;
+    //Remove classsed and id from all slots
+    let allSlots = document.querySelectorAll("td");
+
+    allSlots.forEach(slot => {
+        slot.setAttribute("class", "");
+        slot.setAttribute("id", "");  
+        slot.removeEventListener("click", slotClicked);   
+    });
+
+    //Initialize a new gameboard
     initializeGame();
+    shuffleSlots();
 }
 
 window.addEventListener("load", initializeGame, false);
