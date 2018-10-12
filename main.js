@@ -24,7 +24,7 @@ const initializeGame = () => {
     canvas.width = w;
     canvas.height = h;
     context = canvas.getContext("2d");
-    inputImage = new Image(350,350);
+    inputImage = new Image();
 
     gameBoard.innerHTML = "";
 
