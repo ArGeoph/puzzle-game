@@ -6,25 +6,44 @@ body {
 }
 h2 {
     text-align: center;
-    font-family: Roboto;
+    
 }
+
+h3 {
+    text-align: center;
+}
+
+canvas {
+    display: none;
+/*     width: 325px;
+    height: 325px; */
+}
+.imageInput {
+    text-align: center;
+    margin: 1% 5%;
+}
+
 #resetButton {
     width: 90px;
     height: 25px;
-    margin-left: 38%;
+    margin: 1% 5%;
+    visibility: hidden;
 }
+
 #gameBoard {
     border: 3px solid rgb(44, 32, 54);
+    border-radius: 5px;
     min-width: 350px;
     border-collapse: collapse;
-    margin: 3% auto;
+    margin-left: 5%;
+    visibility: hidden;
 }
 
 td {
     width: 80px;
     height: 80px;
     border: 3px solid blueviolet;
-    background-color: greenyellow;
+    /* background-color: greenyellow; */
     text-align: center;
     font-weight: bold;
     font-size: 1.4em;

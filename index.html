@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Your personal jigsaw</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    
-</head>
-<body>
-    <h2>Your personal jigsaw</h2>
-    <div class = "container">
-        <table id="gameBoard">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Your personal jigsaw</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+        <script src="main.js"></script>
+    </head>
 
-        </table>
-        <button id="resetButton">Reset</button>
-    </div>
-    
-    <script src="main.js"></script>
-</body>
+    <body>
+        <h2>Your personal jigsaw</h2>
+        <h3>Please note, that at the moment the puzzle app works only with square sized pictures</h3>
+
+        <div class="container imageInput">        
+            <label>Select image </label>
+            <input id="inputFile" type="file"/>
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>            
+        </div> 
+
+        <div class = "container">
+            <table id="gameBoard">
+            </table>
+            <button id="resetButton">Reset</button>
+            <label id="clickCounter"></label>
+        </div>
+    </body>
 </html>
