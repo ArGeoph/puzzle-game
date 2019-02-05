@@ -1,9 +1,9 @@
 //Method initializing game board
 let emptySlotNumber;
-let emptySlotObject, resetButton, inputFile, inputImage, canvas, context;
+let emptySlotObject, resetButton, inputFile, inputImage, canvas, context, clickCounterObject;
 let gameBoard, movesCounter = 0;
 let gameBoardSize = 16; //Change it later, so user will be able to change game board size   
-let movesLimit = 35;
+let movesLimit = 15;
 //For canvas
 let imgW, //px
 imgH, //px
@@ -19,6 +19,7 @@ const initializeGame = () => {
     emptySlotNumber = getRandomNumber(0, gameBoardSize); //Getting pseudo-random number for emptySlot
     gameBoard = document.getElementById("gameBoard");
     resetButton = document.getElementById("resetButton");
+    clickCounterObject = document.getElementById("clickCounter");
     canvas = document.getElementById("canvas");
     canvas.width = w;
     canvas.height = h;
@@ -53,7 +54,9 @@ const initializeGame = () => {
     let notEmptySlots = document.querySelectorAll(".notEmptySlot");
     notEmptySlots.forEach(slot => {
         slot.addEventListener("click", slotClicked);
-    });   
+    }); 
+    
+
 };
 
 //Callback function called when new image file is loaded
@@ -92,7 +95,10 @@ const initializeCanvas = () => {
 
 	context.drawImage(inputImage, 0, 0);
 	inputImage = context.getImageData(0, 0, imgW, imgH).data;
-	context.clearRect(0, 0, w, h);
+    context.clearRect(0, 0, w, h);
+    
+    //Render number of attempts left 
+    updateStatistics();
 };
 
 const indexX = (x) => {
@@ -161,9 +167,12 @@ const slotClicked = (event) => {
         event.currentTarget.setAttribute("id", "emptySlot");   
         event.currentTarget.removeEventListener("click", slotClicked);             
         movesCounter++;
-    
+
         //Check if user won or lost 
         checkGameStatus();
+
+        //Update number of attempts left on HTML page
+        updateStatistics();
     }
 };
 
@@ -298,5 +307,11 @@ const restartGame = () => {
     initializeGame();
     shuffleSlots();
 }
+
+//Update number of left attempts on HTML page
+const updateStatistics = () => {
+
+    clickCounterObject.innerHTML = `You have ${movesLimit - movesCounter} attempt${(movesLimit - movesCounter) === 1 ? "s" : ""} left`;
+};
 
 window.addEventListener("load", initializeGame, false);
