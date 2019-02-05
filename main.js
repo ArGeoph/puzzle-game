@@ -227,12 +227,15 @@ const drawTiles = (tiles) => {
 const checkGameStatus = () => {
 
     //If user's done more than movesLimit moves the game is over
-    if (movesCounter > movesLimit) { 
+    if (movesCounter >= movesLimit) { 
         printResult("lost");
         return;   
     }
     else { //if it's less than movesLimit then call function checking all slots 
         checkAllSlots();
+
+        //Render number of attempts left 
+        updateStatistics();
     }
 }
 
@@ -253,7 +256,8 @@ const checkAllSlots = () => {
             }
         }
     }
-    //If reached this point it means that all slots are in order and user won
+
+    //If we reached this point it means that all slots are in order and user won
     printResult("won");
 };   
 

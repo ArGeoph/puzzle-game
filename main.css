@@ -4,6 +4,7 @@ body {
     margin: 0;
     background-color: azure;    
 }
+
 h2 {
     text-align: center;
     
@@ -15,19 +16,31 @@ h3 {
 
 canvas {
     display: none;
-/*     width: 325px;
-    height: 325px; */
 }
+
 .imageInput {
     text-align: center;
     margin: 1% 5%;
 }
 
 #resetButton {
-    width: 90px;
-    height: 25px;
-    margin: 1% 5%;
+    width: 105px;
+    height: 37px;
+    margin-left: 5.5rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    border-radius: 5px;
     visibility: hidden;
+    font-weight: bold;
+    border-radius: 1px solid black;
+}
+
+#clickCounter {
+    font-weight: bold;
+}
+
+#resetButton:hover {
+    background-color: rgba(241, 245, 4, 0.7);
 }
 
 #gameBoard {
@@ -43,7 +56,6 @@ td {
     width: 80px;
     height: 80px;
     border: 3px solid blueviolet;
-    /* background-color: greenyellow; */
     text-align: center;
     font-weight: bold;
     font-size: 1.4em;
