@@ -8,24 +8,31 @@ h2 {
     text-align: center;
     
 }
+
+h3 {
+    text-align: center;
+}
+
 canvas {
     display: none;
 /*     width: 325px;
     height: 325px; */
 }
 .imageInput {
-    
+    text-align: center;
     margin: 1% 5%;
-
 }
+
 #resetButton {
     width: 90px;
     height: 25px;
     margin: 1% 5%;
     visibility: hidden;
 }
+
 #gameBoard {
     border: 3px solid rgb(44, 32, 54);
+    border-radius: 5px;
     min-width: 350px;
     border-collapse: collapse;
     margin-left: 5%;

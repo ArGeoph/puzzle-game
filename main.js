@@ -3,7 +3,7 @@ let emptySlotNumber;
 let emptySlotObject, resetButton, inputFile, inputImage, canvas, context;
 let gameBoard, movesCounter = 0;
 let gameBoardSize = 16; //Change it later, so user will be able to change game board size   
-let movesLimit = 5;
+let movesLimit = 35;
 //For canvas
 let imgW, //px
 imgH, //px
@@ -12,7 +12,6 @@ tileCountX, //how many tiles we can fit
 tileCountY;
 let w = innerWidth,
 h = innerHeight, tiles, images = [];
-
 
 //Function called when page is fully loaded to initialize game board and start the game
 const initializeGame = () => {
@@ -26,7 +25,7 @@ const initializeGame = () => {
     context = canvas.getContext("2d");
     inputImage = new Image();
 
-    gameBoard.innerHTML = "";
+    gameBoard.innerHTML = ""; //Clear canvas
 
     resetButton.addEventListener("click", restartGame, false);
     inputFile.addEventListener("change", readFile); //Add listener to form to load file
@@ -49,14 +48,12 @@ const initializeGame = () => {
 
         gameBoard.children[parseInt(i / 4)].children[i - (parseInt(i/4))*4].setAttribute('class', "notEmptySlot");
     }    
-        //Add event listeners to all slots        
-        let notEmptySlots = document.querySelectorAll(".notEmptySlot");
-        notEmptySlots.forEach(slot => {
-            slot.addEventListener("click", slotClicked);
-        });
 
-        //Assign random numbers from 1 to (gameboardSize - 1) to empty slots
-        
+    //Add event listeners to all slots        
+    let notEmptySlots = document.querySelectorAll(".notEmptySlot");
+    notEmptySlots.forEach(slot => {
+        slot.addEventListener("click", slotClicked);
+    });   
 };
 
 //Callback function called when new image file is loaded
@@ -64,8 +61,7 @@ const readFile = () => {
     let reader = new FileReader();
     reader.readAsDataURL(inputFile.files[0]);
     reader.onload = () => {
-        inputImage.src = reader.result;
-        
+        inputImage.src = reader.result;        
         
         inputImage.onload = () => {
             
@@ -82,8 +78,8 @@ const readFile = () => {
             restartGame();
         }
     }
-
 };
+
 //Function called to initialize canvas
 const initializeCanvas = () => {
 
@@ -99,24 +95,26 @@ const initializeCanvas = () => {
 	context.clearRect(0, 0, w, h);
 };
 
-function indexX(x) {
+const indexX = (x) => {
 	var i = x * 4;
 	if (i > inputImage.length) console.warn("X out of bounds");
 	return i;
 }
-function indexY(y) {
+
+const indexY = (y) => {
 	var i = imgW * 4 * y;
 	if (i > inputImage.length) console.warn("Y out of bounds");
 	return i;
 }
-function getIndex(x, y) {
+
+const getIndex = (x, y) => {
 	var i = indexX(x) + indexY(y);
 	if (i > inputImage.length) console.warn("XY out of bounds");
 	return i;
 }
 
 //get a tile of size tileDim*tileDim from position xy
-function getTile(x, y) {
+const getTile = (x, y) => {
 	var tile = [];
 	//loop over rows
 	for (var i = 0; i < tileDim; i++) {
@@ -132,7 +130,7 @@ function getTile(x, y) {
 }
 
 //generate all tiles
-function getTiles() {
+const getTiles = () => {
 	var tiles = [];
 	for (var yi = 0; yi < tileCountY; yi++) {
 		for (var xi = 0; xi < tileCountX; xi++) {
@@ -142,25 +140,26 @@ function getTiles() {
 	return tiles;
 }
 
-
 //Callback function called when any not-empty slot is clicked 
 const slotClicked = (event) => {
     //Swapping clicked slot with the empty one
-    if (event.currentTarget.getAttribute("id") != "emptySlot") {
+    if (event.currentTarget.getAttribute("id") !== "emptySlot") {
         emptySlotObject = document.getElementById("emptySlot");        
-
+        
         emptySlotNumber = parseInt(event.currentTarget.innerHTML);
     
         emptySlotObject.innerHTML = event.currentTarget.innerHTML;
         //Swap backgrounds as well
         emptySlotObject.style.backgroundImage = `url("${images[parseInt(event.currentTarget.innerHTML)].src}")`;
+        emptySlotObject.addEventListener("click", slotClicked);
         event.currentTarget.style.backgroundImage = "url('')";    
     
         emptySlotObject.setAttribute('id', "");
         emptySlotObject.setAttribute("class", "notEmptySlot"); 
         event.currentTarget.innerHTML = "";                
         event.currentTarget.setAttribute("class", "");
-        event.currentTarget.setAttribute("id", "emptySlot");                
+        event.currentTarget.setAttribute("id", "emptySlot");   
+        event.currentTarget.removeEventListener("click", slotClicked);             
         movesCounter++;
     
         //Check if user won or lost 
@@ -168,12 +167,10 @@ const slotClicked = (event) => {
     }
 };
 
-
 //Function returning random number based on minimum and maximum values passed to it
 const getRandomNumber = (minValue, maxValue) => {
     return minValue + Math.floor(maxValue * Math.random());
-}
- 
+} 
 
 //Function shuffling slots 
 const shuffleSlots = () => {
@@ -205,8 +202,7 @@ const shuffleSlots = () => {
     }
 };
 
-
-function drawTiles(tiles) {
+const drawTiles = (tiles) => {
     tiles.forEach((tile,i) => { 
                                 
         context.putImageData(tile, 0, 0);
@@ -219,7 +215,7 @@ function drawTiles(tiles) {
 }
 
 //Function used to check if user won the game
-let checkGameStatus = () => {
+const checkGameStatus = () => {
 
     //If user's done more than movesLimit moves the game is over
     if (movesCounter > movesLimit) { 
@@ -251,27 +247,28 @@ const checkAllSlots = () => {
     //If reached this point it means that all slots are in order and user won
     printResult("won");
 };   
-    //Function called if user won or lost
-    const printResult = (result) => {
-        let message; //Message that will be used in alert window        
-        
-        switch(result) {
-            case "lost":
-                message = `You made more than ${movesLimit} moves and you lost!\n Press ok to start a new game`;
-                break;
-            case "won":
-                message = `Congrats, you won in ${movesCounter} moves! \n Press ok to start a new game`;
-                break;
-        }
 
-        let userChoise = window.confirm(message);
+//Function called if user won or lost
+const printResult = (result) => {
+    let message; //Message that will be used in alert window        
     
-        if (userChoise) {
-            restartGame();
-        }
-        else { //If user doesn't want to continue game, remove all event listeners
-            disableSlots();
-        }
+    switch(result) {
+        case "lost":
+            message = `You made more than ${movesLimit} moves and you lost!\n Press ok to start a new game`;
+            break;
+        case "won":
+            message = `Congrats, you won in ${movesCounter} moves! \n Press ok to start a new game`;
+            break;
+    }
+
+    let userChoise = window.confirm(message);
+
+    if (userChoise) {
+        restartGame();
+    }
+    else { //If user doesn't want to continue game, remove all event listeners
+        disableSlots();
+    }
 }
 
 //Disable all slots 
@@ -284,10 +281,11 @@ const disableSlots = () => {
 };
 
 //Function to start a new game
-let restartGame = () => {
+const restartGame = () => {
+
     tiles = [];
     movesCounter = 0;
-    //Remove classsed and id from all slots
+    //Remove classses and id from all slots
     let allSlots = document.querySelectorAll("td");
 
     allSlots.forEach(slot => {
